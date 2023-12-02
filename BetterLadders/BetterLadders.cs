@@ -2,7 +2,6 @@
 using BepInEx.Configuration;
 using GameNetcodeStuff;
 using HarmonyLib;
-using Unity.Netcode;
 
 namespace BetterLadders
 {
@@ -75,7 +74,11 @@ namespace BetterLadders
             {
                 if (BetterLadders.Instance.configAllowTwoHanded.Value)
                 {
-                    GameNetworkManager.Instance.localPlayerController.currentlyHeldObjectServer.EnableItemMeshes(enable: !___usingLadder);
+                    PlayerControllerB playerController = GameNetworkManager.Instance.localPlayerController;
+                    if (playerController.isHoldingObject && playerController.twoHanded)
+                    {
+                        playerController.currentlyHeldObjectServer.EnableItemMeshes(enable: !___usingLadder);
+                    }
                 }
             }
         }
