@@ -22,7 +22,7 @@ hideTwoHanded (default: true)
 - Added new config option to hide two-handed held objects while climbing
 - Fixed ladder animation playing while not moving
 ## 1.2.1
-- Fixed README.md
+- Fixed README
 ## 1.2.2
 - When using a mod that adds hotkeys to switch item slots, items are properly hidden
 	- Tested with [HotbarPlus](https://thunderstore.io/c/lethal-company/p/FlipMods/HotbarPlus/)
