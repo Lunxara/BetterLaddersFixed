@@ -14,7 +14,7 @@ namespace BetterLadders
 
         public const string GUID = "e3s1.BetterLadders";
         public const string NAME = "BetterLadders";
-        public const string VERSION = "1.2.0";
+        public const string VERSION = "1.2.1";
 
         private ConfigEntry<float> configClimbSpeedMultiplier;
         private ConfigEntry<float> configClimbSprintSpeedMultiplier;
