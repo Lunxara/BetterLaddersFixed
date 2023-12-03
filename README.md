@@ -10,3 +10,6 @@ allowTwoHanded (default: true)
 - Release
 ## 1.0.1
 - Fixed NullReferenceException when climbing ladder without two-handed object
+## 1.1.0
+- Added new config option to scale ladder speed while sprinting
+- Added new config option to scale ladder climbing animation speed

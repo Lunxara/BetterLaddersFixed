@@ -2,6 +2,8 @@
 using BepInEx.Configuration;
 using GameNetcodeStuff;
 using HarmonyLib;
+using JetBrains.Annotations;
+using UnityEngine.Bindings;
 
 namespace BetterLadders
 {
@@ -13,14 +15,17 @@ namespace BetterLadders
         public static BetterLadders Instance;
 
         private ConfigEntry<float> configClimbSpeedMultiplier;
+        private ConfigEntry<float> configClimbSprintSpeedMultiplier;
         private ConfigEntry<bool> configAllowTwoHanded;
+        private ConfigEntry<bool> configScaleAnimationSpeed;
 
-        private void Awake()
+        void Awake()
         {
             Instance = this;
             configClimbSpeedMultiplier = Config.Bind("General", "climbSpeedMultipler", 1.0f, "Ladder climb speed multiplier");
+            configClimbSprintSpeedMultiplier = Config.Bind("General", "sprintingClimbSpeedMultiplier", 1.0f, "Ladder climb speed multiplier while sprinting, stacks with climbSpeedMultiplier");
             configAllowTwoHanded = Config.Bind("General", "allowTwoHanded", true, "Whether to allow using ladders while carrying a two-handed object");
-
+            configScaleAnimationSpeed = Config.Bind("General", "scaleAnimationSpeed", true, "Whether to scale the speed of the climbing animation to the climbing speed");
 
             // Plugin startup logic
             Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} loaded!");
@@ -33,11 +38,26 @@ namespace BetterLadders
         [HarmonyPatch(typeof(PlayerControllerB))]
         internal class PlayerControllerBPatch
         {
-            [HarmonyPatch("Start")]
+            [HarmonyPatch("Update")]
             [HarmonyPostfix]
-            private static void LadderClimbSpeedPatch(ref float ___climbSpeed)
+            private static void LadderClimbSpeedPatch(ref bool ___isSprinting, ref float ___climbSpeed, ref bool ___isClimbingLadder, ref PlayerControllerB __instance)
             {
-                ___climbSpeed *= BetterLadders.Instance.configClimbSpeedMultiplier.Value;
+                if (___isSprinting && ___isClimbingLadder)
+                {
+                    ___climbSpeed = 4.0f * BetterLadders.Instance.configClimbSpeedMultiplier.Value * BetterLadders.Instance.configClimbSprintSpeedMultiplier.Value;
+                    if (BetterLadders.Instance.configScaleAnimationSpeed.Value)
+                    {
+                        __instance.playerBodyAnimator.SetFloat("animationSpeed", BetterLadders.Instance.configClimbSprintSpeedMultiplier.Value);
+                    }
+                }
+                else if (!___isSprinting && ___isClimbingLadder)
+                {
+                    ___climbSpeed = 4.0f * BetterLadders.Instance.configClimbSpeedMultiplier.Value;
+                    if (BetterLadders.Instance.configScaleAnimationSpeed.Value)
+                    {
+                        __instance.playerBodyAnimator.SetFloat("animationSpeed", BetterLadders.Instance.configClimbSpeedMultiplier.Value);
+                    }
+                }
             }
             
             [HarmonyPatch("Interact_performed")]
@@ -46,11 +66,13 @@ namespace BetterLadders
             {
                 if (BetterLadders.Instance.configAllowTwoHanded.Value && ___hoveringOverTrigger != null)
                 {
-                    if (___hoveringOverTrigger.isLadder && ___twoHanded)
+                    if (___hoveringOverTrigger.isLadder)
                     {
-                        ___hoveringOverTrigger.twoHandedItemAllowed = true;
-                        ___hoveringOverTrigger.specialCharacterAnimation = false;
-                        ___hoveringOverTrigger.hidePlayerItem = true;
+                        if (___twoHanded) {
+                            ___hoveringOverTrigger.twoHandedItemAllowed = true;
+                            ___hoveringOverTrigger.specialCharacterAnimation = false;
+                            ___hoveringOverTrigger.hidePlayerItem = true;
+                        }
                     }
                 }
             }
