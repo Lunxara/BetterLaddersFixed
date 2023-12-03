@@ -5,8 +5,8 @@ Change ladder climbing speed and allow climbing while holding two-handed objects
 climbSpeedMultiplier (default: 1)\
 sprintingClimbSpeedMultipler (default: 1.25)\
 allowTwoHanded (default: true)\
-scaleAnimationSpeed (default: true)
-hideOneHanded (default: true)
+scaleAnimationSpeed (default: true)\
+hideOneHanded (default: true)\
 hideTwoHanded (default: true)
 
 # Changelog
