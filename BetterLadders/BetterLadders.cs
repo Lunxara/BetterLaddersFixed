@@ -14,7 +14,7 @@ namespace BetterLadders
 
         public const string GUID = "e3s1.BetterLadders";
         public const string NAME = "BetterLadders";
-        public const string VERSION = "1.2.1";
+        public const string VERSION = "1.2.2";
 
         private ConfigEntry<float> configClimbSpeedMultiplier;
         private ConfigEntry<float> configClimbSprintSpeedMultiplier;
@@ -27,7 +27,7 @@ namespace BetterLadders
         {
             Instance = this;
             configClimbSpeedMultiplier = Config.Bind("General", "climbSpeedMultipler", 1.0f, "Ladder climb speed multiplier");
-            configClimbSprintSpeedMultiplier = Config.Bind("General", "sprintingClimbSpeedMultiplier", 1.25f, "Ladder climb speed multiplier while sprinting, stacks with climbSpeedMultiplier");
+            configClimbSprintSpeedMultiplier = Config.Bind("General", "sprintingClimbSpeedMultiplier", 1.5f, "Ladder climb speed multiplier while sprinting, stacks with climbSpeedMultiplier");
             configAllowTwoHanded = Config.Bind("General", "allowTwoHanded", true, "Whether to allow using ladders while carrying a two-handed object");
             configScaleAnimationSpeed = Config.Bind("General", "scaleAnimationSpeed", true, "Whether to scale the speed of the climbing animation to the climbing speed");
             configHideOneHanded = Config.Bind("General", "hideOneHanded", true, "Whether to hide one-handed items while climbing a ladder - false in vanilla");
@@ -91,13 +91,30 @@ namespace BetterLadders
                     __instance.cursorTip.text = ___hoveringOverTrigger.hoverTip.Replace("[LMB]", "[E]");
                 }
             }
+
+            [HarmonyPatch("SwitchToItemSlot")]
+            [HarmonyPostfix]
+            private static void LadderHeldItemVisibilityPatch(ref PlayerControllerB __instance)
+            {
+                LadderItemVisibility.Set(ref __instance.isClimbingLadder);
+                // This doesn't affect anything in vanilla since you can't switch slots while climbing a ladder.
+                // If a mod that allows switching slots via keybinds is installed, this prevents items from appearing when using them.
+            }
         }
         [HarmonyPatch(typeof(InteractTrigger))]
         internal class InteractTriggerPatch
         {
             [HarmonyPatch("SetUsingLadderOnLocalClient")]
             [HarmonyPostfix]
-            private static void LadderTwoHandedRevealItemPatch(ref bool ___usingLadder)
+            private static void LadderHeldItemVisibilityPatch(ref bool ___usingLadder)
+            {
+                LadderItemVisibility.Set(ref ___usingLadder);
+            }
+        }
+
+        internal static class LadderItemVisibility
+        {
+            public static void Set(ref bool ___usingLadder)
             {
                 PlayerControllerB playerController = GameNetworkManager.Instance.localPlayerController;
                 if (playerController.isHoldingObject)
