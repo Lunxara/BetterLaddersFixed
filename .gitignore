@@ -1,0 +1,6 @@
+.git/
+.vs/
+.gitattributes
+BetterLadders/bin
+BetterLadders/lib
+BetterLadders/obj
