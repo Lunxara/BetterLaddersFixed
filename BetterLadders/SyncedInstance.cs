@@ -1,141 +1,142 @@
-﻿using HarmonyLib;
-using System;
+﻿using BetterLadders;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Unity.Collections;
+using System;
 using Unity.Netcode;
+using Unity.Collections;
+using GameNetcodeStuff;
+using HarmonyLib;
 
-namespace BetterLadders
+[Serializable]
+public class SyncedInstance<T>
 {
-    [Serializable]
-    public class SyncedInstance<T>
+    internal static CustomMessagingManager MessageManager => NetworkManager.Singleton.CustomMessagingManager;
+    internal static bool IsClient => NetworkManager.Singleton.IsClient;
+    internal static bool IsHost => NetworkManager.Singleton.IsHost;
+
+    [NonSerialized]
+    protected static int IntSize = 4;
+
+    public static T Default { get; private set; }
+    public static T Instance { get; private set; }
+
+    public static bool Synced { get; internal set; }
+
+    protected void InitInstance(T instance)
     {
-        internal static CustomMessagingManager MessageManager => NetworkManager.Singleton.CustomMessagingManager;
-        internal static bool IsClient => NetworkManager.Singleton.IsClient;
-        internal static bool IsHost => NetworkManager.Singleton.IsHost;
+        Default = instance;
+        Instance = instance;
 
-        [NonSerialized]
-        protected static int IntSize = 4;
+        // Makes sure the size of an integer is correct for the current system.
+        // We use 4 by default as that's the size of an int on 32 and 64 bit systems.
+        IntSize = sizeof(int);
+    }
 
-        public static T Default { get; private set; }
-        public static T Instance { get; private set; }
+    internal static void SyncInstance(byte[] data)
+    {
+        Instance = DeserializeFromBytes(data);
+        Synced = true;
+    }
 
-        public static bool Synced { get; internal set; }
+    internal static void RevertSync()
+    {
+        Instance = Default;
+        Synced = false;
+    }
 
-        protected void InitInstance(T instance)
+    public static byte[] SerializeToBytes(T val)
+    {
+        BinaryFormatter bf = new();
+        using MemoryStream stream = new();
+
+        try
         {
-            Default = instance;
-            Instance = instance;
+            bf.Serialize(stream, val);
+            return stream.ToArray();
+        }
+        catch (Exception e)
+        {
+            Plugin.Logger.LogError($"Error serializing instance: {e}");
+            return null;
+        }
+    }
 
-            // Makes sure the size of an integer is correct for the current system.
-            // We use 4 by default as that's the size of an int on 32 and 64 bit systems.
-            IntSize = sizeof(int);
+    public static T DeserializeFromBytes(byte[] data)
+    {
+        BinaryFormatter bf = new();
+        using MemoryStream stream = new(data);
+
+        try
+        {
+            return (T)bf.Deserialize(stream);
+        }
+        catch (Exception e)
+        {
+            Plugin.Logger.LogError($"Error deserializing instance: {e}");
+            return default;
+        }
+    }
+
+    public static void RequestSync()
+    {
+        if (!IsClient) return;
+
+        using FastBufferWriter stream = new(IntSize, Allocator.Temp);
+        MessageManager.SendNamedMessage("BetterLadders_OnRequestConfigSync", 0uL, stream);
+        Plugin.Logger.LogInfo("Requested sync from server");
+    }
+
+    public static void OnRequestSync(ulong clientId, FastBufferReader _)
+    {
+        if (!IsHost) return;
+
+        Plugin.Logger.LogInfo($"Config sync request received from client: {clientId}");
+
+        byte[] array = SerializeToBytes(Instance);
+        int value = array.Length;
+
+        using FastBufferWriter stream = new(value + IntSize, Allocator.Temp);
+
+        try
+        {
+            stream.WriteValueSafe(in value, default);
+            stream.WriteBytesSafe(array);
+
+            MessageManager.SendNamedMessage("BetterLadders_OnReceiveConfigSync", clientId, stream);
+        }
+        catch (Exception e)
+        {
+            Plugin.Logger.LogInfo($"Error occurred syncing config with client: {clientId}\n{e}");
+        }
+    }
+
+    public static void OnReceiveSync(ulong _, FastBufferReader reader)
+    {
+        if (!reader.TryBeginRead(IntSize))
+        {
+            Plugin.Logger.LogError("Config sync error: Could not begin reading buffer.");
+            return;
         }
 
-        internal static void SyncInstance(byte[] data)
+        reader.ReadValueSafe(out int val, default);
+        if (!reader.TryBeginRead(val))
         {
-            Instance = DeserializeFromBytes(data);
-            Synced = true;
+            Plugin.Logger.LogError("Config sync error: Host could not sync.");
+            return;
         }
 
-        internal static void RevertSync()
-        {
-            Instance = Default;
-            Synced = false;
-        }
+        byte[] data = new byte[val];
+        reader.ReadBytesSafe(ref data, val);
 
-        public static byte[] SerializeToBytes(T val)
-        {
-            BinaryFormatter bf = new();
-            using MemoryStream stream = new();
+        SyncInstance(data);
 
-            try
-            {
-                bf.Serialize(stream, val);
-                return stream.ToArray();
-            }
-            catch (Exception e)
-            {
-                Plugin.Logger.LogError($"Error serializing instance: {e}");
-                return null;
-            }
-        }
+        Plugin.Logger.LogInfo("Successfully synced config with host.");
+    }
 
-        public static T DeserializeFromBytes(byte[] data)
-        {
-            BinaryFormatter bf = new();
-            using MemoryStream stream = new(data);
-
-            try
-            {
-                return (T)bf.Deserialize(stream);
-            }
-            catch (Exception e)
-            {
-                Plugin.Logger.LogError($"Error deserializing instance: {e}");
-                return default;
-            }
-        }
-        public static void RequestSync()
-        {
-            if (!IsClient) return;
-
-            using FastBufferWriter stream = new(IntSize, Allocator.Temp);
-            MessageManager.SendNamedMessage("BetterLadders_OnRequestConfigSync", 0uL, stream);
-        }
-
-        public static void OnRequestSync(ulong clientId, FastBufferReader _)
-        {
-            if (!IsHost) return;
-
-            Plugin.Logger.LogInfo($"Config sync request received from client: {clientId}");
-
-            byte[] array = SerializeToBytes(Instance);
-            int value = array.Length;
-
-            using FastBufferWriter stream = new(value + IntSize, Allocator.Temp);
-
-            try
-            {
-                stream.WriteValueSafe(in value, default);
-                stream.WriteBytesSafe(array);
-
-                MessageManager.SendNamedMessage("BetterLadders_OnReceiveConfigSync", clientId, stream);
-            }
-            catch (Exception e)
-            {
-                Plugin.Logger.LogInfo($"Error occurred syncing config with client: {clientId}\n{e}");
-            }
-        }
-
-        public static void OnReceiveSync(ulong _, FastBufferReader reader)
-        {
-            if (!reader.TryBeginRead(IntSize))
-            {
-                Plugin.Logger.LogError("Config sync error: Could not begin reading buffer.");
-                return;
-            }
-
-            reader.ReadValueSafe(out int val, default);
-            if (!reader.TryBeginRead(val))
-            {
-                Plugin.Logger.LogError("Config sync error: Host could not sync.");
-                return;
-            }
-
-            byte[] data = new byte[val];
-            reader.ReadBytesSafe(ref data, val);
-
-            SyncInstance(data);
-
-            Plugin.Logger.LogInfo("Successfully synced config with host.");
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(GameNetworkManager), "StartDisconnect")]
-        public static void PlayerLeave()
-        {
-            Config.RevertSync();
-        }
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameNetworkManager), "StartDisconnect")]
+    public static void PlayerLeave()
+    {
+        Config.RevertSync();
     }
 }

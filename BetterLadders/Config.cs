@@ -6,12 +6,13 @@ namespace BetterLadders
     [Serializable]
     public class Config : SyncedInstance<Config>
     {
-        public float climbSpeedMultiplier { get; private set; }
-        public float sprintingClimbSpeedMultiplier { get; private set; }
-        public bool allowTwoHanded { get; private set; }
-        public bool scaleAnimationSpeed { get; private set; }
-        public bool hideOneHanded { get; private set; }
-        public bool hideTwoHanded { get; private set; }
+        public float climbSpeedMultiplier { get; internal set; }
+        public float sprintingClimbSpeedMultiplier { get; internal set; }
+        public bool allowTwoHanded { get; internal set; }
+        public bool scaleAnimationSpeed { get; internal set; }
+        public bool hideOneHanded { get; internal set; }
+        public bool hideTwoHanded { get; internal set; }
+        public bool defaultsSet { get; internal set; }
         public Config(ConfigFile cfg)
         {
             InitInstance(this);
@@ -21,6 +22,15 @@ namespace BetterLadders
             scaleAnimationSpeed = cfg.Bind("General", "scaleAnimationSpeed", true, "Whether to scale the speed of the climbing animation to the climbing speed").Value;
             hideOneHanded = cfg.Bind("General", "hideOneHanded", true, "Whether to hide one-handed items while climbing a ladder - false in vanilla").Value;
             hideTwoHanded = cfg.Bind("General", "hideTwoHanded", true, "Whether to hide two-handed items while climbing a ladder").Value;
+            defaultsSet = false;
         }
+        public void SetVanillaDefaults()
+        {
+            Config.Instance.climbSpeedMultiplier = 1.0f;
+            Config.Instance.sprintingClimbSpeedMultiplier = 1.0f;
+            Config.Instance.allowTwoHanded = false;
+            defaultsSet = true;
+        }
+
     }
 }

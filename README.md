@@ -2,9 +2,11 @@
 Change ladder climbing speed and allow climbing while holding two-handed objects.
 
 # Config options
-climbSpeedMultiplier (default: 1)\
+## Synced
+climbSpeedMultiplier (default: 1.0)\
 sprintingClimbSpeedMultipler (default: 1.5)\
-allowTwoHanded (default: true)\
+allowTwoHanded (default: true)
+## Not synced
 scaleAnimationSpeed (default: true)\
 hideOneHanded (default: true)\
 hideTwoHanded (default: true)
@@ -28,4 +30,6 @@ hideTwoHanded (default: true)
 	- Tested with [HotbarPlus](https://thunderstore.io/c/lethal-company/p/FlipMods/HotbarPlus/)
 ## 1.2.3
 - Fixed NullReferenceException when climbing ladder with a ReservedItemSlot mod installed
+	- Currently, the reserved item won't be hidden if climbing a ladder while holding it
 - Added config syncing with host
+	- If joining a host who doesn't have this mod, config options that can be synced will be set to their vanilla defaults

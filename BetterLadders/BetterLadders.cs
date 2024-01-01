@@ -2,7 +2,10 @@
 using BepInEx.Logging;
 using GameNetcodeStuff;
 using HarmonyLib;
-using System;
+using System.IO;
+using System.Reflection;
+using Unity.Netcode;
+using UnityEngine;
 
 namespace BetterLadders
 {
@@ -13,9 +16,14 @@ namespace BetterLadders
 
         public static Plugin Instance;
 
+        public AssetBundle networkhandler;
+
         public const string GUID = "e3s1.BetterLadders";
         public const string NAME = "BetterLadders";
         public const string VERSION = "1.2.3";
+        internal static bool IsHost => NetworkManager.Singleton.IsHost;
+        internal static bool IsServer => NetworkManager.Singleton.IsServer;
+        internal static bool IsClient => NetworkManager.Singleton.IsClient;
         internal static new ManualLogSource Logger { get; private set; }
         public static new Config Config { get; internal set; }
         void Awake()
@@ -28,30 +36,35 @@ namespace BetterLadders
             // Plugin startup logic
             Plugin.Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} loaded");
 
-            harmony.PatchAll(typeof(Plugin));
-            harmony.PatchAll(typeof(Config));
-            harmony.PatchAll(typeof(PlayerControllerBPatch));
-            harmony.PatchAll(typeof(InteractTriggerPatch));
+            harmony.PatchAll();
+        }
+
+        [HarmonyPatch(typeof(StartMatchLever))]
+        internal class StartGamePatch
+        {
+            [HarmonyPostfix]
+            [HarmonyPatch("PullLeverAnim")]
+            private static void SetClientConfigWhenHostMissingMod()
+            {
+                if (!(IsHost || IsServer) && !Config.Synced && !Config.Default.defaultsSet)
+                {
+                    Logger.LogInfo("Config wasn't synced with host (likely doesn't have mod), setting vanilla config defaults");
+                    Config.SetVanillaDefaults();
+                }
+            }
         }
 
         [HarmonyPatch(typeof(PlayerControllerB))]
         internal class PlayerControllerBPatch
         {
-            [HarmonyPostfix]
             [HarmonyPatch("ConnectClientToPlayerObject")]
+            [HarmonyPostfix]
             public static void InitializeLocalPlayer()
             {
-                if (Config.IsHost)
+                if (IsHost)
                 {
-                    try
-                    {
-                        Config.MessageManager.RegisterNamedMessageHandler("BetterLadders_OnRequestConfigSync", Config.OnRequestSync);
-                        Config.Synced = true;
-                    }
-                    catch (Exception e)
-                    {
-                        Plugin.Logger.LogError(e);
-                    }
+                    Config.MessageManager.RegisterNamedMessageHandler("BetterLadders_OnRequestConfigSync", Config.OnRequestSync);
+                    Config.Synced = true;
 
                     return;
                 }
@@ -61,7 +74,7 @@ namespace BetterLadders
                 Config.RequestSync();
             }
 
-            [HarmonyPatch("Update")]
+            [HarmonyPatch("Update")] // should probably not use update, find method for sprinting toggle instead
             [HarmonyPostfix]
             private static void LadderClimbSpeedPatch(ref bool ___isSprinting, ref float ___climbSpeed, ref bool ___isClimbingLadder, ref PlayerControllerB __instance)
             {
@@ -80,7 +93,7 @@ namespace BetterLadders
                     }
                     animationMultiplier = finalClimbSpeed / 4.0f;
                     ___climbSpeed = finalClimbSpeed;
-                    if (Config.Instance.scaleAnimationSpeed && __instance.playerBodyAnimator.GetFloat("animationSpeed") != 0f) // animationSpeed is set to 0f when the player stops moving
+                    if (Config.Default.scaleAnimationSpeed && __instance.playerBodyAnimator.GetFloat("animationSpeed") != 0f) // animationSpeed is set to 0f when the player stops moving
                     {
                         __instance.playerBodyAnimator.SetFloat("animationSpeed", animationMultiplier);
                     }
@@ -95,7 +108,6 @@ namespace BetterLadders
                 {
                         ___hoveringOverTrigger.twoHandedItemAllowed = true;
                         ___hoveringOverTrigger.specialCharacterAnimation = false;
-                        ___hoveringOverTrigger.hidePlayerItem = true;
                 }
             }
 
@@ -136,7 +148,7 @@ namespace BetterLadders
                 PlayerControllerB playerController = GameNetworkManager.Instance.localPlayerController;
                 if (playerController.isHoldingObject && playerController.currentlyHeldObjectServer != null)
                 {
-                    if ((Config.Instance.allowTwoHanded && Config.Instance.hideTwoHanded && playerController.twoHanded) || (Config.Instance.hideOneHanded && !playerController.twoHanded))
+                    if ((Config.Instance.allowTwoHanded && Config.Default.hideTwoHanded && playerController.twoHanded) || (Config.Default.hideOneHanded && !playerController.twoHanded))
                     {
                         playerController.currentlyHeldObjectServer.EnableItemMeshes(enable: !___usingLadder);
                     }
