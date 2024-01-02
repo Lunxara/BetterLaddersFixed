@@ -1,15 +1,22 @@
 # BetterLadders
-Change ladder climbing speed and allow climbing while holding two-handed objects.
+Configurable climbing speed, extension ladder time, and climbing with two-handed items
 
 # Config options
-## Synced
-climbSpeedMultiplier (default: 1.0)\
-sprintingClimbSpeedMultipler (default: 1.5)\
-allowTwoHanded (default: true)
-## Not synced
-scaleAnimationSpeed (default: true)\
-hideOneHanded (default: true)\
-hideTwoHanded (default: true)
+## General
+entry | default | description | synced with host
+----- | ------- | ----------- | ----------------
+climbSpeedMultiplier | 1.0 | Ladder climb speed multiplier | yes
+sprintingClimbSpeedMultipler | 1.5 | Ladder climb speed multiplier while sprinting, stacks with climbSpeedMultiplier | yes
+allowTwoHanded | true | Whether to allow using ladders while carrying a two-handed object | yes
+scaleAnimationSpeed | true | Whether to scale the speed of the climbing animation to the climbing speed | no
+hideOneHanded | true | Whether to hide one-handed items while climbing a ladder | no
+hideTwoHanded | true | Whether to hide two-handed items while climbing a ladder | no
+## Extension Ladders
+entry | default | description | synced with host
+----- | ------- | ----------- | ----------------
+timeMultiplier | 0.0 | Extension ladder time multiplier (0 for permanent) - lasts 20 seconds in vanilla | yes
+holdToPickup | true | Whether the interact key needs to be held to pick up an activated extension ladder | no
+holdTime | 0.5 | How long, in seconds, the interact key must be held if holdToPickup is true | no
 
 # Changelog
 ## 1.0.0
@@ -33,3 +40,8 @@ hideTwoHanded (default: true)
 	- Currently, the reserved item won't be hidden if climbing a ladder while holding it
 - Added config syncing with host
 	- If joining a host who doesn't have this mod, config options that can be synced will be set to their vanilla defaults
+## 1.3.0
+- Added new config options for extension ladders
+	- timeMultiplier - Extension ladder time multiplier (0 for permanent)
+	- holdToPickup - Whether the interact key needs to be held to pick up an activated extension ladder
+	- holdTime - How long, in seconds, the interact key must be held if holdToPickup is true

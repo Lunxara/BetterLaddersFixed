@@ -133,10 +133,35 @@ public class SyncedInstance<T>
         Plugin.Logger.LogInfo("Successfully synced config with host.");
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GameNetworkManager), "StartDisconnect")]
+    [HarmonyPostfix, HarmonyPatch(typeof(GameNetworkManager), "StartDisconnect")]
     public static void PlayerLeave()
     {
         Config.RevertSync();
+    }
+
+    [HarmonyPostfix, HarmonyPatch(nameof(PlayerControllerB), "ConnectClientToPlayerObject")]
+    public static void InitializeLocalPlayer()
+    {
+        if (IsHost)
+        {
+            Config.MessageManager.RegisterNamedMessageHandler("BetterLadders_OnRequestConfigSync", Config.OnRequestSync);
+            Config.Synced = true;
+
+            return;
+        }
+
+        Config.Synced = false;
+        Config.MessageManager.RegisterNamedMessageHandler("BetterLadders_OnReceiveConfigSync", Config.OnReceiveSync);
+        Config.RequestSync();
+    }
+
+    [HarmonyPostfix, HarmonyPatch(nameof(StartMatchLever), "PullLeverAnim")]
+    private static void SetClientConfigWhenHostMissingMod()
+    {
+        if (!IsHost && !Config.Synced && !Config.Default.defaultsSet)
+        {
+            Plugin.Logger.LogInfo("Config wasn't synced with host (likely doesn't have mod), setting vanilla config defaults");
+            Config.Instance.SetVanillaDefaults();
+        }
     }
 }
