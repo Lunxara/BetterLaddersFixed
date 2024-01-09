@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>BetterLadders</AssemblyName>
         <Description>Configurable climbing speed, extension ladder time, and climbing with two-handed items</Description>
-        <Version>1.3.0</Version>
+        <Version>1.4.0</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
@@ -15,11 +15,8 @@
 
     <ItemGroup>
       <Compile Remove="lib\**" />
-      <Compile Remove="Patches\**" />
       <EmbeddedResource Remove="lib\**" />
-      <EmbeddedResource Remove="Patches\**" />
       <None Remove="lib\**" />
-      <None Remove="Patches\**" />
     </ItemGroup>
 
     <ItemGroup>
