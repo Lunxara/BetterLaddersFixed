@@ -1,5 +1,4 @@
 ﻿using BetterLadders;
-using BetterLadders.Patches;
 using GameNetcodeStuff;
 using HarmonyLib;
 using System;
@@ -8,7 +7,6 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Unity.Collections;
 using Unity.Netcode;
-using UnityEngine.Internal;
 
 [Serializable]
 public class SyncedInstance<T>

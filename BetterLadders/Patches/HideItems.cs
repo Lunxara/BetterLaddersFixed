@@ -1,7 +1,5 @@
-﻿using AsmResolver;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using HarmonyLib;
-using UnityEngine;
 
 namespace BetterLadders.Patches
 {

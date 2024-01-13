@@ -43,23 +43,6 @@ namespace BetterLadders.Patches
                             }
                         }
                         Plugin.Instance.TranspilerLogger(code, i, -2, 5, "ExtLadderTime");
-                        /*
-                        List<bool> PatchedMethods = GetPatchedMethods(code); // test this method
-                        bool customTimeAlreadyPatched = PatchedMethods[0];
-                        bool permanentTimeAlreadyPatched = PatchedMethods[1];
-
-                        if (customTimeAlreadyPatched)
-                        {
-                            code[i + 3] = new CodeInstruction(OpCodes.Ldc_R4, initalTime * Config.Instance.timeMultiplier);
-                            Plugin.Logger.LogInfo($"Custom timeMultiplier was patched previously, setting new value to {(float)code[i + 3].operand}");
-                        }
-                        if (permanentTimeAlreadyPatched)
-                        {
-                            TryRemovePermanentTime(ref code); // fix this method ??? fixed ???
-                            Plugin.Logger.LogInfo($"Permanent timeMultiplier was patched previously, replacing with custom timeMultiplier");
-                        }
-                        if (customTimeAlreadyPatched) continue;
-                        */
                     }
                 }
                 return code;
@@ -86,69 +69,11 @@ namespace BetterLadders.Patches
                         }
                         Plugin.Instance.TranspilerLogger(code, i, -2, 6, "ExtLadderTime");
                         return code;
-                        /*
-                        List<bool> PatchedMethods = GetPatchedMethods(code); // test this method
-                        bool customTimeAlreadyPatched = PatchedMethods[0];
-                        bool permanentTimeAlreadyPatched = PatchedMethods[1];
-
-                        if (permanentTimeAlreadyPatched)
-                        {
-                            return code;
-                        }
-
-                        return code;
-                        */
                     }
                 }
                 return code;
             }
             return code;
-        }
-        static List<bool> GetPatchedMethods(List<CodeInstruction> code)
-        {
-            List<bool> PatchedMethods = [false, false];
-            int numFound = 0;
-            for (int i = 0; i < code.Count - 3; i++)
-            {
-                if (code[i].opcode == OpCodes.Ldfld && code[i].operand is FieldInfo field && field.Name == "ladderTimer" &&
-                        code[i + 1].opcode == OpCodes.Ldc_R4 &&
-                        code[i + 2].opcode == OpCodes.Pop &&
-                        code[i + 3].opcode == OpCodes.Ldc_R4)
-                {
-                    Plugin.Logger.LogInfo("Custom time already patched - GetPatchedMethods()");
-                    numFound++;
-                    if (numFound == 2) PatchedMethods[0] = true;
-                }
-            }
-            for (int i = 0; i < code.Count - 5; i++)
-            {
-                if (code[i].opcode == OpCodes.Ret &&
-                    code[i + 2].opcode == OpCodes.Ldfld && code[i + 2].operand is FieldInfo field && field.Name == "ladderAnimationBegun" &&
-                    code[i + 4].opcode == OpCodes.Ret &&
-                    code[i + 5].opcode == OpCodes.Ldarg_0) // this one is true regardless of if the original method is patched or not; there are two ldarg.0's in a row
-                {
-                    Plugin.Logger.LogInfo("Permanent time already patched - GetPatchedMethods()");
-                    PatchedMethods[1] = true;
-                }
-            }
-            return PatchedMethods;
-        }
-        static bool TryRemovePermanentTime(ref List<CodeInstruction> code)
-        {
-            for (int i = 0; i < code.Count - 5; i++)
-            {
-                //14 | if (this.ladderAnimationBegun)
-                if (code[i].opcode == OpCodes.Ret &&
-                    code[i + 2].opcode == OpCodes.Ldfld && code[i + 2].operand is FieldInfo field && field.Name == "ladderAnimationBegun" &&
-                    code[i + 4].opcode == OpCodes.Ret &&
-                    code[i + 5].opcode == OpCodes.Ldarg_0) // this one is true regardless of if the original method is patched or not; there are two ldarg.0's in a row
-                {
-                    code.RemoveAt(i + 4);
-                    Plugin.Logger.LogInfo("Removed previous (permanent) time");
-                    return true;
-                }
-            }
-            return false;
         }
     }
 }

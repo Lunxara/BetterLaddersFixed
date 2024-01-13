@@ -29,48 +29,16 @@ namespace BetterLadders.Patches
             return true;
         }
 
-        [HarmonyPrefix, HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.ClickHoldInteraction))]
-        static bool ShowHoldInteractHUD(ref PlayerControllerB __instance)
+        [HarmonyPostfix, HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.ClickHoldInteraction))]
+        static void ShowHoldInteractHUD(ref PlayerControllerB __instance)
         {
-            if (__instance.hoveringOverTrigger)
-            {
-                bool isHoldingInteract = IngamePlayerSettings.Instance.playerInput.actions.FindAction("Interact").IsPressed();
-                __instance.isHoldingInteract = isHoldingInteract;
-                if (!isHoldingInteract)
-                {
-                    __instance.StopHoldInteractionOnTrigger();
-                    return false;
-                }
-                if (__instance.hoveringOverTrigger == null || !__instance.hoveringOverTrigger.interactable)
-                {
-                    __instance.StopHoldInteractionOnTrigger();
-                    return false;
-                }
-                if (__instance.hoveringOverTrigger == null || !__instance.hoveringOverTrigger.gameObject.activeInHierarchy || !__instance.hoveringOverTrigger.holdInteraction || __instance.hoveringOverTrigger.currentCooldownValue > 0f || (__instance.isHoldingObject && !__instance.hoveringOverTrigger.oneHandedItemAllowed) || (__instance.twoHanded && !__instance.hoveringOverTrigger.twoHandedItemAllowed))
-                {
-                    __instance.StopHoldInteractionOnTrigger();
-                    return false;
-                }
-                if (__instance.isGrabbingObjectAnimation || __instance.isTypingChat || __instance.inSpecialInteractAnimation || __instance.throwingObject)
-                {
-                    __instance.StopHoldInteractionOnTrigger();
-                    return false;
-                }
-                if (!HUDManager.Instance.HoldInteractionFill(__instance.hoveringOverTrigger.timeToHold, __instance.hoveringOverTrigger.timeToHoldSpeedMultiplier))
-                {
-                    __instance.hoveringOverTrigger.HoldInteractNotFilled();
-                    return false;
-                }
-                __instance.hoveringOverTrigger.Interact(__instance.thisPlayerBody);
-                return false;
-            }
-            else
+            if (!__instance.hoveringOverTrigger)
             {
                 bool isHoldingInteract = IngamePlayerSettings.Instance.playerInput.actions.FindAction("Interact").IsPressed();
                 if (!isHoldingInteract)
                 {
                     HUDManager.Instance.holdFillAmount = 0f;
-                    return false;
+                    return;
                 }
                 if (LookingAtGrabbableExtLadder(ref __instance, out RaycastHit hit, out ExtensionLadderItem extLadderObj))
                 {
@@ -78,13 +46,12 @@ namespace BetterLadders.Patches
                     {
                         if (!HUDManager.Instance.HoldInteractionFill(Config.Default.holdTime))
                         {
-                            return false;
+                            return;
                         }
                         canPickupLadder = true;
                         __instance.BeginGrabObject();
                     }
                 }
-                return false;
             }
         }
         [HarmonyPrefix, HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.StopHoldInteractionOnTrigger))]

@@ -22,7 +22,7 @@ namespace BetterLadders.Patches
             {
                 if (code[i].opcode == OpCodes.Call && 
                     code[i].operand is MethodInfo method &&
-                    method.Name.Contains("get_deltaTime"))
+                    method.Name == "get_deltaTime")
                 {
                     if (patching)
                     {
@@ -37,21 +37,6 @@ namespace BetterLadders.Patches
                         }
                     }
                     Plugin.Instance.TranspilerLogger(code, i, -2, 4, "TransitionSpeed");
-                    /*
-                    bool alreadyPatched = code[i+1].opcode == OpCodes.Ldc_R4 && code[i+2].opcode == OpCodes.Mul;
-                    if (alreadyPatched)
-                    {
-                        code[i + 1] = new CodeInstruction(OpCodes.Ldc_R4, Config.Instance.transitionSpeedMultiplier);
-                        Plugin.Logger.LogInfo("Updated TransitionSpeed with host's new value");
-                        Plugin.Logger.LogInfo("==========================================================");
-                        //Updates the patched value with the host's new value
-                        continue; // maybe keep return code;
-                    }
-                    code.Insert(i + 1, new CodeInstruction(OpCodes.Ldc_R4, Config.Instance.transitionSpeedMultiplier));
-                    code.Insert(i + 2, new CodeInstruction(OpCodes.Mul));
-                    Plugin.Instance.TranspilerLogger(code, i, -2, 4, "TransitionSpeed");
-                    // maybe keep return code;
-                    */
                 }
             }
             return code;

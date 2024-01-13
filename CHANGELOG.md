@@ -29,13 +29,14 @@
 	- holdTime - How long, in seconds, the interact key must be held if holdToPickup is true
 ## 1.4.0
 - Added new config options
-	- transitionSpeedMultiplier - Multiplier for the time between pressing interact and snapping to a ladder
+	- transitionSpeedMultiplier - Multiplier for the time between pressing interact and entering/exiting a ladder
 	- killTriggerEnabled - Whether or not extension ladders can kill players while falling
 - Held item visibility is now synced between clients as long as the host has the mod
 	- Clients who have hideOneHanded disabled will still see other players items, same with hideTwoHanded
 - Bug fixes:
-    - Fixed a vanilla bug where ladder animation would play while only moving left/right
+    - Fixed a vanilla bug where ladder animation would play while holding left/right
     - Progress bar no longer appears when trying to pick up an extension ladder while holding a two handed object or while it is not grabbable
+	- Fixed climb animation not playing for other clients
     - Fixed transpilers duplicating code when a client leaves and joins another game
     - Transpilers that rely on synced config values should now actually use the synced config values
 	    - Previously, they were running on game launch, so they were using the client's config, not the host's config

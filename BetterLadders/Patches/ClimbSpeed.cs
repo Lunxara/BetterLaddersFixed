@@ -1,7 +1,5 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using System;
-using UnityEngine;
 
 namespace BetterLadders.Patches
 {
@@ -15,14 +13,25 @@ namespace BetterLadders.Patches
             float finalClimbSpeed = 4.0f * Config.Instance.climbSpeedMultiplier * (___isSprinting ? Config.Instance.sprintingClimbSpeedMultiplier : 1f);
             ___climbSpeed = finalClimbSpeed;
 
-            if (__instance.playerBodyAnimator.GetFloat("animationSpeed") != 0f) // animationSpeed is set to 0f when the player stops moving
+            // Checking if moveInputVector.y != 0 before setting animation speed fixes the vanilla bug where holding move left/right will still play the climbing animation
+            if (__instance.moveInputVector.y != 0f && Config.Instance.scaleAnimationSpeed)
             {
-                // Checking if moveInputVector.y != 0 before setting animation speed fixes the vanilla bug where holding move left/right will still play the climbing animation
-                if (__instance.moveInputVector.y != 0f && Config.Default.scaleAnimationSpeed)
+                float finalAnimationSpeed = finalClimbSpeed / 4.0f * (__instance.moveInputVector.y > 0f ? 1f : -1f);
+                if (__instance.currentAnimationSpeed != finalAnimationSpeed)
                 {
-                    __instance.playerBodyAnimator.SetFloat("animationSpeed", finalClimbSpeed / 4.0f);
-                } else if (__instance.moveInputVector.y == 0f)
-                {   
+                    __instance.previousAnimationSpeed = finalAnimationSpeed;
+                    __instance.currentAnimationSpeed = finalAnimationSpeed;
+                    Plugin.Logger.LogInfo($"Setting animationSpeed to {finalAnimationSpeed}");
+                    __instance.playerBodyAnimator.SetFloat("animationSpeed", finalAnimationSpeed);
+                }
+            }
+            else if (__instance.moveInputVector.y == 0f)
+            {
+                if (__instance.currentAnimationSpeed != 0f)
+                {
+                    __instance.previousAnimationSpeed = 0f;
+                    __instance.currentAnimationSpeed = 0f;
+                    Plugin.Logger.LogInfo("Setting animationSpeed to 0");
                     __instance.playerBodyAnimator.SetFloat("animationSpeed", 0f);
                 }
             }
