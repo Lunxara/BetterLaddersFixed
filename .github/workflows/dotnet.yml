@@ -34,9 +34,6 @@ jobs:
         echo "::set-output name=description::$DESCRIPTION"
         echo "::set-output name=website_url::$WEBSITE_URL"
         echo "::set-output name=dependencies::$DEPENDENCIES"
-
-        echo ${{ secrets.TS_API_KEY }}
-
     - name: Display package info
       run: |
         echo "Name: ${{ steps.package-info.outputs.name }}"
@@ -59,7 +56,6 @@ jobs:
         repo: thunderstore.io
         website: ${{ steps.package-info.outputs.website_url }}
         deps: ${{ steps.package-info.outputs.dependencies }}
-        dev: true
         file: "${{ steps.package-info.outputs.name }}-${{ steps.package-info.outputs.version_number }}.zip"
         categories: |
           bepinex
