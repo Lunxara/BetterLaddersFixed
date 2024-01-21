@@ -14,12 +14,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="lib\**" />
-      <EmbeddedResource Remove="lib\**" />
-      <None Remove="lib\**" />
-    </ItemGroup>
-
-    <ItemGroup>
 		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1" PrivateAssets="all" />
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
         <PackageReference Include="BepInEx.Core" Version="5.*" />
