@@ -34,6 +34,9 @@ jobs:
         echo "::set-output name=description::$DESCRIPTION"
         echo "::set-output name=website_url::$WEBSITE_URL"
         echo "::set-output name=dependencies::$DEPENDENCIES"
+
+        echo ${{ secrets.TS_API_KEY }}
+
     - name: Display package info
       run: |
         echo "Name: ${{ steps.package-info.outputs.name }}"
