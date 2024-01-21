@@ -68,7 +68,7 @@ jobs:
         website: ${{ steps.package-info.outputs.website_url }}
         deps: ${{ steps.package-info.outputs.dependencies }}
         dev: true
-        file: ./${{ steps.package-info.outputs.name }} ${{ steps.extract-info.outputs.version_number }}.zip
+        file: ../${{ steps.package-info.outputs.name }} ${{ steps.extract-info.outputs.version_number }}.zip
         categories: |
           bepinex
           mods
