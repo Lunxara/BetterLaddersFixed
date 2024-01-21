@@ -53,8 +53,8 @@ jobs:
         echo "Dependencies: ${{ steps.package-info.outputs.dependencies }}"
     - name: Zip files
       run: |
-        ls -r bin
-        zip -r "BetterLadders ${{ steps.package-info.outputs.version_number }}.zip" "manifest.json" "icon.png" "README.md" "CHANGELOG.md" "bin/Debug/net*/*.dll"
+        ls -r BetterLadders/bin
+        zip -r "${{ steps.package-info.outputs.name }} ${{ steps.package-info.outputs.version_number }}.zip" "manifest.json" "icon.png" "README.md" "CHANGELOG.md" "BetterLadders/bin/Debug/net*/*.dll"
     - name: Upload to Thunderstore
       uses: GreenTF/upload-thunderstore-package@v4.3
       with:
