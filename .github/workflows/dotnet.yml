@@ -64,10 +64,11 @@ jobs:
         name: ${{ steps.package-info.outputs.name }}
         version: ${{ steps.package-info.outputs.version_number }}
         community: lethal-company
+        repo: thunderstore.io
         website: ${{ steps.package-info.outputs.website_url }}
         deps: ${{ steps.package-info.outputs.dependencies }}
         dev: true
-        file: "/BetterLadders/${{ steps.package-info.outputs.name }} ${{ steps.extract-info.outputs.version_number }}.zip"
+        file: ./${{ steps.package-info.outputs.name }} ${{ steps.extract-info.outputs.version_number }}.zip
         categories: |
           bepinex
           mods
