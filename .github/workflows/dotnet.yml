@@ -54,7 +54,7 @@ jobs:
     - name: Zip files
       run: |
         ls -r BetterLadders/bin
-        zip -r "./${{ steps.package-info.outputs.name }}-${{ steps.package-info.outputs.version_number }}.zip" "manifest.json" "icon.png" "README.md" "CHANGELOG.md" "BetterLadders/bin/Debug/netstandard2.1/BetterLadders.dll"
+        zip -r "${{ steps.package-info.outputs.name }}-${{ steps.package-info.outputs.version_number }}.zip" "manifest.json" "icon.png" "README.md" "CHANGELOG.md" "BetterLadders/bin/Debug/netstandard2.1/BetterLadders.dll"
         ls
         pwd
     - name: Upload to Thunderstore
@@ -70,7 +70,7 @@ jobs:
         website: ${{ steps.package-info.outputs.website_url }}
         deps: ${{ steps.package-info.outputs.dependencies }}
         dev: true
-        file: "/home/runner/work/BetterLadders/${{ steps.package-info.outputs.name }}-${{ steps.package-info.outputs.version_number }}.zip"
+        file: "${{ steps.package-info.outputs.name }}-${{ steps.package-info.outputs.version_number }}.zip"
         categories: |
           bepinex
           mods
