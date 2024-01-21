@@ -17,9 +17,9 @@ jobs:
     - name: Check for version
       run: |
         if [[ "${{ github.event.head_commit.message }}" =~ \d+\.\d+\.\d+$ ]]; then
-          echo "Semantic versioning pattern is valid. Proceeding with the workflow."
+          echo "Proceeding with the workflow."
         else
-          echo "Invalid semantic versioning pattern. Exiting workflow."
+          echo "Not a release commit. Exiting workflow."
           exit 78
         fi
     - uses: actions/checkout@v3
