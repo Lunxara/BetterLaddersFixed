@@ -12,11 +12,16 @@ on:
 
 jobs:
   build:
-    if: github.event.head_commit.message =~ '\d+\.\d+\.\d+$'
-
     runs-on: ubuntu-latest
-
     steps:
+    - name: Check for version
+      run: |
+        if [[ "${{ github.event.head_commit.message }}" =~ \d+\.\d+\.\d+$ ]]; then
+          echo "Semantic versioning pattern is valid. Proceeding with the workflow."
+        else
+          echo "Invalid semantic versioning pattern. Exiting workflow."
+          exit 78
+        fi
     - uses: actions/checkout@v3
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
