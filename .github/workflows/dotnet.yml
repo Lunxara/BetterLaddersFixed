@@ -60,7 +60,7 @@ jobs:
     - name: Upload to Thunderstore
       uses: GreenTF/upload-thunderstore-package@v4.3
       with:
-        namespace: e3s1 # the thunderstore 'team' to publish under
+        namespace: e3s1
         description: ${{ steps.package-info.outputs.description }}
         token: ${{ secrets.TS_API_KEY }}
         name: ${{ steps.package-info.outputs.name }}
