@@ -1,6 +1,6 @@
 {
     "name": "BetterLadders",
-    "version_number": "1.4.1",
+    "version_number": "1.4.2",
     "website_url": "https://github.com/e3s1/BetterLadders",
     "description": "Configurable climbing speed, extension ladder time, and climbing with two-handed items",
     "dependencies": [
