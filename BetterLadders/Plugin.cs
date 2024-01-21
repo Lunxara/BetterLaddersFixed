@@ -68,15 +68,5 @@ namespace BetterLadders
         //Hitting with shovel instantly retracts ladder
         //Fix vanilla bug where player isn't alligned to ladder when interacting from behind
         //Invisible walkway at top so player doesn't get stuck on ladder - not sure if possible while keeping mod clientside, since ExtensionLadder : GrabbableObject : NetworkBehaviour
-
-        //DONE
-        //Fix other players' ladder animation not playing due to animation speed patch
-        //Make sure synced patches are only run once per session
-        //Fix bar still filling up when trying to pick up ladder with two handed object
-        //Transition speed multiplier
-        //Sync item visibility
-        //Dont play animation when holding strafe keys
-        //Ext ladder killTrigger toggle
-        //Unpatch synced patches on disconnect
     }
 }

@@ -5,7 +5,7 @@ namespace BetterLadders.Patches
 {
     internal class HideItems
     {
-        private static bool hasUsedLadder = false;
+        private static bool hasUsedLadder = false; // This exists to prevent sending network messages unnecessarily
         [HarmonyPostfix, HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.SwitchToItemSlot))]
         static void SetVisibilityOnItemSwitch(ref PlayerControllerB __instance)
         {
@@ -17,7 +17,7 @@ namespace BetterLadders.Patches
         [HarmonyPostfix, HarmonyPatch(typeof(InteractTrigger), nameof(InteractTrigger.SetUsingLadderOnLocalClient))]
         static void SetVisibilityOnStartClimb(ref bool ___usingLadder)
         {
-            hasUsedLadder = true; // This exists to prevent sending network messages unnecessarily
+            hasUsedLadder = true;
             SetVisibility(ref ___usingLadder);
         }
 
@@ -25,7 +25,7 @@ namespace BetterLadders.Patches
         {
             if (!hasUsedLadder) return;
             PlayerControllerB playerController = GameNetworkManager.Instance.localPlayerController;
-            if (playerController.isHoldingObject && playerController.currentlyHeldObjectServer != null)
+            if (playerController.isHoldingObject && playerController.currentlyHeldObjectServer != null) // null check is for reserved slot mods
             {
                 if ((Config.Instance.allowTwoHanded && playerController.twoHanded) || (!playerController.twoHanded))
                 {

@@ -30,7 +30,7 @@
 ## 1.4.0
 - Added new config options
 	- transitionSpeedMultiplier - Multiplier for the time between pressing interact and entering/exiting a ladder
-	- killTriggerEnabled - Whether or not extension ladders can kill players while falling
+	- enableKillTrigger - Whether or not extension ladders can kill players while falling
 - Held item visibility is now synced between clients as long as the host has the mod
 	- Clients who have hideOneHanded disabled will still see other players items, same with hideTwoHanded
 - Bug fixes:
