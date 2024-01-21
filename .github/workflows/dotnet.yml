@@ -1,0 +1,81 @@
+name: .NET
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build:
+    if: "contains(github.event.head_commit.message, '^\\d+\\.\\d+\\.\\d+$')"
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      run: dotnet restore --configfile BetterLadders/NuGet.Config
+    - name: Add NuGet packages
+      run: |
+        dotnet add package LethalCompany.GameLibs.Steam --version 49.0.0-alpha.1
+        dotnet add package BepInEx.AssemblyPublicizer.MSBuild --version 0.4.1 --private-assests all
+        dotnet add package BepInEx.Analyzers --version 1.* --private-assests all
+        dotnet add package BepInEx.Core --version 5.*
+        dotnet add package BepInEx.PluginInfoProps --version 1.* --private-assests all
+        dotnet add package UnityEngine.Modules --version 2022.3.9 --include-assests compile
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Get package info
+      id: package-info
+      run: |
+        # Extract values from manifest.json
+        NAME=$(jq -r '.name' manifest.json)
+        VERSION_NUMBER=$(jq -r '.version_number' manifest.json)
+        DESCRIPTION=$(jq -r '.description' manifest.json)
+        WEBSITE_URL=$(jq -r '.website_url' manifest.json)
+        DEPENDENCIES=$(jq -r '.dependencies | join(" ")' manifest.json)
+        # Set output variables for later use
+        echo "::set-output name=name::$NAME"
+        echo "::set-output name=version_number::$VERSION_NUMBER"
+        echo "::set-output name=description::$DESCRIPTION"
+        echo "::set-output name=website_url::$WEBSITE_URL"
+        echo "::set-output name=dependencies::$DEPENDENCIES"
+    - name: Display package info
+      run: |
+        echo "Name: ${{ steps.package-info.outputs.name }}"
+        echo "Version Number: ${{ steps.package-info.outputs.version_number }}"
+        echo "Description: ${{ steps.package-info.outputs.description }}"
+        echo "Website URL: ${{ steps.package-info.outputs.website_url }}"
+        echo "Dependencies: ${{ steps.package-info.outputs.dependencies }}"
+    - name: Zip files
+      run: |
+        ls -r bin
+        zip -r "BetterLadders ${{ steps.package-info.outputs.version_number }}.zip" "manifest.json" "icon.png" "README.md" "CHANGELOG.md" "bin/Debug/net*/*.dll"
+    - name: Upload to Thunderstore
+      uses: GreenTF/upload-thunderstore-package@v4.3
+      with:
+        namespace: e3s1 # the thunderstore 'team' to publish under
+        description: ${{ steps.package-info.outputs.description }}
+        token: ${{ secrets.THUNDERSTOREAPIKEY }}
+        name: ${{ steps.package-info.outputs.name }}
+        version: ${{ steps.package-info.outputs.version_number }}
+        community: lethal-company
+        website: ${{ steps.package-info.outputs.website_url }}
+        deps: ${{ steps.package-info.outputs.dependencies }}
+        dev: true
+        file: BetterLadders ${{ steps.extract-info.outputs.version_number }}.zip
+        categories: |
+          bepinex
+          mods
+          clientside
+          serverside
+          misc
