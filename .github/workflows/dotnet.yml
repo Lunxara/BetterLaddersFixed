@@ -62,7 +62,7 @@ jobs:
       with:
         namespace: e3s1 # the thunderstore 'team' to publish under
         description: ${{ steps.package-info.outputs.description }}
-        token: ${{ secrets.THUNDERSTOREAPIKEY }}
+        token: ${{ secrets.TS_API_KEY }}
         name: ${{ steps.package-info.outputs.name }}
         version: ${{ steps.package-info.outputs.version_number }}
         community: lethal-company
