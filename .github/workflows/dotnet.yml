@@ -2,26 +2,18 @@ name: .NET
 
 on:
   push:
-    branches:
-      - main
-      - dev
-  pull_request:
-    branches:
-      - main
-      - dev
+    branches: [ "master" ]
+  release:
+    types: [published]
+    tags:
+      - '*.*.*'
+  workflow_dispatch:  
+  
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Check for version
-      run: |
-        if [[ "${{ github.event.head_commit.message }}" =~ ([0-9]\.){2}[0-9]$ ]]; then
-          echo "Proceeding with the workflow."
-        else
-          echo "Not a release commit. Exiting workflow."
-          exit 78
-        fi
     - uses: actions/checkout@v3
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
