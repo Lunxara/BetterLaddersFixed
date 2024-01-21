@@ -26,4 +26,8 @@
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
     </ItemGroup>
 
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="xcopy /Y &quot;bin\Debug\netstandard2.1\BetterLadders.dll&quot; &quot;%25appdata%25\r2modmanPlus-local\LethalCompany\profiles\BetterLadders Testing\BepInEx\plugins\e3s1-BetterLadders&quot;" />
+    </Target>
+
 </Project>
