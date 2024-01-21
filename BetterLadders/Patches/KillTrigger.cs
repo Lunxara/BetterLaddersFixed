@@ -26,7 +26,7 @@ namespace BetterLadders.Patches
                     }
                     else
                     {
-                        if (code[i + 2].opcode == OpCodes.Pop && code[i + 2].opcode == OpCodes.Ldc_I4_1 && code[i + 2].opcode == OpCodes.Ldc_I4_0)
+                        if (code[i + 2].opcode == OpCodes.Pop && (code[i + 2].opcode == OpCodes.Ldc_I4_1 || code[i + 2].opcode == OpCodes.Ldc_I4_0))
                         {
                             code.RemoveRange(i + 2, i + 3);
                         }

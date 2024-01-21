@@ -10,7 +10,7 @@ namespace BetterLadders.Patches
         [HarmonyTranspiler, HarmonyPatch(typeof(InteractTrigger), nameof(InteractTrigger.ladderClimbAnimation), MethodType.Enumerator)]
         static IEnumerable<CodeInstruction> TransitionSpeedTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            Plugin.Logger.LogWarning("Starting TransitionSpeed transpiler - this might show up multiple times");
+            Plugin.Logger.LogWarning("Starting TransitionSpeed transpiler");
             var code = new List<CodeInstruction>(instructions);
             if (Config.Instance.transitionSpeedMultiplier <= 0)
             {
