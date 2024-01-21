@@ -67,7 +67,7 @@ jobs:
         website: ${{ steps.package-info.outputs.website_url }}
         deps: ${{ steps.package-info.outputs.dependencies }}
         dev: true
-        file: "BetterLadders ${{ steps.extract-info.outputs.version_number }}.zip"
+        file: "../../BetterLadders ${{ steps.extract-info.outputs.version_number }}.zip"
         categories: |
           bepinex
           mods
