@@ -15,7 +15,7 @@ namespace BetterLadders
 
         public const string GUID = "e3s1.BetterLadders";
         public const string NAME = "BetterLadders";
-        public const string VERSION = "1.4.0";
+        public const string VERSION = "1.4.2";
         internal static new ManualLogSource Logger { get; private set; }
         public static new Config Config { get; internal set; }
         void Awake()

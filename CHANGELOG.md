@@ -1,4 +1,6 @@
 # Changelog
+## 1.4.2
+- Fixed broken directory structure in zip file
 ## 1.4.1
 - Fixed enableKillTrigger not resetting when leaving a lobby
 ## 1.4.0

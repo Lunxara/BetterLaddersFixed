@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>BetterLadders</AssemblyName>
         <Description>Configurable climbing speed, extension ladder time, and climbing with two-handed items</Description>
-        <Version>1.4.0</Version>
+        <Version>1.4.2</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
@@ -27,7 +27,41 @@
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="xcopy /Y &quot;bin\Debug\netstandard2.1\BetterLadders.dll&quot; &quot;%25appdata%25\r2modmanPlus-local\LethalCompany\profiles\BetterLadders Testing\BepInEx\plugins\e3s1-BetterLadders&quot;" />
+      <Exec Condition="'$(BuildingInsideVisualStudio)' == 'true'" Command="xcopy /Y &quot;bin\Debug\netstandard2.1\BetterLadders.dll&quot; &quot;%25appdata%25\r2modmanPlus-local\LethalCompany\profiles\BetterLadders Testing\BepInEx\plugins\e3s1-BetterLadders&quot;" />
     </Target>
 
+		<Publicize Include="Assembly-CSharp" />
+      <Reference Include="Unity.Collections">
+        <HintPath>..\..\lib\Unity.Collections.dll</HintPath>
+      </Reference>
+      <Reference Include="Unity.InputSystem">
+        <HintPath>..\..\lib\Unity.InputSystem.dll</HintPath>
+      </Reference>
+      <Reference Include="Unity.Netcode.Runtime">
+        <HintPath>..\..\lib\Unity.Netcode.Runtime.dll</HintPath>
+      </Reference>
+      <Reference Include="Unity.TextMeshPro">
+        <HintPath>..\..\lib\Unity.TextMeshPro.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.UI">
+        <HintPath>..\..\lib\UnityEngine.UI.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+		<Publicize Include="Assembly-CSharp" />
+      <Reference Include="Unity.Collections">
+        <HintPath>..\..\lib\Unity.Collections.dll</HintPath>
+      </Reference>
+      <Reference Include="Unity.InputSystem">
+        <HintPath>..\..\lib\Unity.InputSystem.dll</HintPath>
+      </Reference>
+      <Reference Include="Unity.Netcode.Runtime">
+        <HintPath>..\..\lib\Unity.Netcode.Runtime.dll</HintPath>
+      </Reference>
+      <Reference Include="Unity.TextMeshPro">
+        <HintPath>..\..\lib\Unity.TextMeshPro.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.UI">
+        <HintPath>..\..\lib\UnityEngine.UI.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 </Project>
