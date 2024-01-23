@@ -9,7 +9,7 @@ namespace BetterLadders.Patches
     {
 
         [HarmonyTranspiler, HarmonyPatch(typeof(ExtensionLadderItem), nameof(ExtensionLadderItem.Update))]
-        static IEnumerable<CodeInstruction> ExtLadderTimeTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> ExtLadderTimeTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             Plugin.Logger.LogWarning("Starting ExtLadderTime transpiler");
             var code = new List<CodeInstruction>(instructions);

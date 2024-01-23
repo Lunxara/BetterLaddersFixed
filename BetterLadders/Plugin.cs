@@ -18,7 +18,7 @@ namespace BetterLadders
         public const string VERSION = "1.4.2";
         internal static new ManualLogSource Logger { get; private set; }
         public static new Config Config { get; internal set; }
-        void Awake()
+        private void Awake()
         {
             Instance = this;
 
@@ -54,19 +54,15 @@ namespace BetterLadders
             Plugin.Logger.LogInfo("============================================================");
         }
 
-        //TODO
-
-        //Only send needed config values during sync
-
         //NEW FEATURES
         //Fix reserved flashlight not being hidden
         //Disable walkie glow, LethalThings' rocket launcher laser, flashlight on hide
         //Press interact once to teleport to the top of the ladder?
         //Ext ladder length - scale or by segments? seems like a lot of work to remake the extension ladder to work with segments
-        //Ext ladder deploy speed
+        //Ext ladder extend, fall, retract speed
         //Stackable extension ladders
         //Hitting with shovel instantly retracts ladder
         //Fix vanilla bug where player isn't alligned to ladder when interacting from behind
-        //Invisible walkway at top so player doesn't get stuck on ladder - not sure if possible while keeping mod clientside, since ExtensionLadder : GrabbableObject : NetworkBehaviour
+        //Invisible walkway at top so player doesn't get stuck on ladder - not sure if possible while keeping mod clientside unless it can be attached in game rather than modifying the class
     }
 }

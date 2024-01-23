@@ -8,7 +8,7 @@ namespace BetterLadders.Patches
     internal class KillTrigger
     {
         [HarmonyTranspiler, HarmonyPatch(typeof(ExtensionLadderItem), nameof(ExtensionLadderItem.LadderAnimation), MethodType.Enumerator)] // check method
-        static IEnumerable<CodeInstruction> KillTriggerTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> KillTriggerTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             Plugin.Logger.LogWarning("Starting KillTrigger transpiler");
             var code = new List<CodeInstruction>(instructions);

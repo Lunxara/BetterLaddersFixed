@@ -6,7 +6,7 @@ namespace BetterLadders.Patches
     internal class ClimbSpeed
     {
         [HarmonyPostfix, HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.Update))]
-        static void LadderClimbSpeedPatch(ref bool ___isSprinting, ref float ___climbSpeed, ref bool ___isClimbingLadder, ref PlayerControllerB __instance)
+        private static void LadderClimbSpeedPatch(ref bool ___isSprinting, ref float ___climbSpeed, ref bool ___isClimbingLadder, ref PlayerControllerB __instance)
         {
             if (!___isClimbingLadder) return;
             // vanilla climb speed is 4.0f

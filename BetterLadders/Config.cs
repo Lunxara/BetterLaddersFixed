@@ -24,7 +24,7 @@ namespace BetterLadders
         public float holdTime { get; internal set; }
         //Not in config
         public bool hostMissingMod { get; internal set; }
-        public Config(ConfigFile cfg)
+        internal Config(ConfigFile cfg)
         {
             InitInstance(this);
             //General (synced)
@@ -46,7 +46,7 @@ namespace BetterLadders
             //Not in config
             hostMissingMod = false;
         }
-        public void SetVanillaDefaults()
+        internal void SetVanillaDefaults()
         {
             Config.Instance.climbSpeedMultiplier = 1.0f;
             Config.Instance.sprintingClimbSpeedMultiplier = 1.0f;

@@ -6,10 +6,10 @@ namespace BetterLadders.Patches
 {
     internal class HoldToPickup
     {
-        static bool canPickupLadder = false;
+        private static bool canPickupLadder = false;
 
         [HarmonyPrefix, HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.BeginGrabObject))]
-        static bool ControlExtLadderPickup(ref PlayerControllerB __instance)
+        private static bool ControlExtLadderPickup(ref PlayerControllerB __instance)
         {
             if (LookingAtGrabbableExtLadder(ref __instance, out RaycastHit hit, out ExtensionLadderItem extLadderObj))
             {
@@ -30,7 +30,7 @@ namespace BetterLadders.Patches
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.ClickHoldInteraction))]
-        static void ShowHoldInteractHUD(ref PlayerControllerB __instance)
+        private static void ShowHoldInteractHUD(ref PlayerControllerB __instance)
         {
             if (!__instance.hoveringOverTrigger)
             {
@@ -55,7 +55,7 @@ namespace BetterLadders.Patches
             }
         }
         [HarmonyPrefix, HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.StopHoldInteractionOnTrigger))]
-        static bool StopHoldInteractionOnTrigger(ref PlayerControllerB __instance)
+        private static bool StopHoldInteractionOnTrigger(ref PlayerControllerB __instance)
         {
             if (LookingAtGrabbableExtLadder(ref __instance, out RaycastHit hit, out ExtensionLadderItem extLadderObj))
             {
@@ -84,7 +84,7 @@ namespace BetterLadders.Patches
             }
             return false;
         }
-        static bool LookingAtGrabbableExtLadder(ref PlayerControllerB __instance, out RaycastHit hit, out ExtensionLadderItem extLadderObj)
+        private static bool LookingAtGrabbableExtLadder(ref PlayerControllerB __instance, out RaycastHit hit, out ExtensionLadderItem extLadderObj)
         {
             var interactRay = new Ray(__instance.gameplayCamera.transform.position, __instance.gameplayCamera.transform.forward);
             bool success = (Physics.Raycast(interactRay, out hit, __instance.grabDistance, __instance.interactableObjectsMask) && hit.collider.gameObject.layer != 8);

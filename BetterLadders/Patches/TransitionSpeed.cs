@@ -8,7 +8,7 @@ namespace BetterLadders.Patches
     internal class TransitionSpeed
     {
         [HarmonyTranspiler, HarmonyPatch(typeof(InteractTrigger), nameof(InteractTrigger.ladderClimbAnimation), MethodType.Enumerator)]
-        static IEnumerable<CodeInstruction> TransitionSpeedTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> TransitionSpeedTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             Plugin.Logger.LogWarning("Starting TransitionSpeed transpiler");
             var code = new List<CodeInstruction>(instructions);

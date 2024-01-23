@@ -7,7 +7,7 @@ namespace BetterLadders.Patches
     {
         private static bool hasUsedLadder = false; // This exists to prevent sending network messages unnecessarily
         [HarmonyPostfix, HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.SwitchToItemSlot))]
-        static void SetVisibilityOnItemSwitch(ref PlayerControllerB __instance)
+        private static void SetVisibilityOnItemSwitch(ref PlayerControllerB __instance)
         {
             SetVisibility(ref __instance.isClimbingLadder);
             // This doesn't affect anything in vanilla since you can't switch slots while climbing a ladder.
@@ -15,13 +15,13 @@ namespace BetterLadders.Patches
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(InteractTrigger), nameof(InteractTrigger.SetUsingLadderOnLocalClient))]
-        static void SetVisibilityOnStartClimb(ref bool ___usingLadder)
+        private static void SetVisibilityOnStartClimb(ref bool ___usingLadder)
         {
             hasUsedLadder = true;
             SetVisibility(ref ___usingLadder);
         }
 
-        static void SetVisibility(ref bool ___usingLadder)
+        internal static void SetVisibility(ref bool ___usingLadder)
         {
             if (!hasUsedLadder) return;
             PlayerControllerB playerController = GameNetworkManager.Instance.localPlayerController;
