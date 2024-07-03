@@ -24,13 +24,16 @@ jobs:
         echo "version=$version" >> "$GITHUB_ENV"
         echo "description=$(jq -r '.description' manifest.json)" >> "$GITHUB_ENV"
         echo "dependencies=$(jq -r '.dependencies | join(" ")' manifest.json)" >> "$GITHUB_ENV"
-        echo "zip_name=$name-$name.zip" >> "$GITHUB_ENV"
+        echo "zip_name=$name-$version.zip" >> "$GITHUB_ENV"
         echo "dll_name=$name.dll" >> "$GITHUB_ENV"
     - name: Create Thunderstore Package
       run: |
         zip -j ${{ env.zip_name }} "manifest.json" "icon.png" "README.md" "CHANGELOG.md" "BetterLadders/bin/Debug/netstandard2.1/${{ env.dll_name }}"
     - name: Attach Archive to Release
       run: gh release upload ${{ github.event.release.tag_name }} ${{ env.zip_name }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+
     - name: Upload to Thunderstore
       uses: GreenTF/upload-thunderstore-package@v4.3
       with:
