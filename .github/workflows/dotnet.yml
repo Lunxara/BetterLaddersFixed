@@ -32,7 +32,7 @@ jobs:
     - name: Attach Archive to Release
       run: gh release upload ${{ github.event.release.tag_name }} ${{ env.zip_name }}
       env:
-        GH_TOKEN: ${{ github.token }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload to Thunderstore
       uses: GreenTF/upload-thunderstore-package@v4.3
