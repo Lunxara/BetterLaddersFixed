@@ -17,29 +17,32 @@ jobs:
       run: dotnet build
     - name: Get Release Info
       run: |
-        echo "NAME=$(jq -r '.name' manifest.json)" >> $GITHUB_ENV
-        echo "VERSION_NUMBER=$(jq -r '.version_number' manifest.json)" >> $GITHUB_ENV
-        echo "DESCRIPTION=$(jq -r '.description' manifest.json)" >> $GITHUB_ENV
-        echo "DEPENDENCIES=$(jq -r '.dependencies | join(" ")' manifest.json)" >> $GITHUB_ENV
-        echo "ZIP_NAME=${{ env.NAME }}-${{ env.VERSION_NUMBER }}.zip" >> $GITHUB_ENV
-        echo "DLL_NAME=${{ env.NAME }}.dll" >> $GITHUB_ENV
+        name=$(jq -r '.name' manifest.json)
+        version=$(jq -r '.version_number' manifest.json)
+
+        echo "name=$name" >> $GITHUB_ENV
+        echo "version=$version" >> "$GITHUB_ENV"
+        echo "description=$(jq -r '.description' manifest.json)" >> "$GITHUB_ENV"
+        echo "dependencies=$(jq -r '.dependencies | join(" ")' manifest.json)" >> "$GITHUB_ENV"
+        echo "zip_name=$name-$name.zip" >> "$GITHUB_ENV"
+        echo "dll_name=$name.dll" >> "$GITHUB_ENV"
     - name: Create Thunderstore Package
       run: |
-        zip -j ${{ env.ZIP_NAME }} "manifest.json" "icon.png" "README.md" "CHANGELOG.md" "BetterLadders/bin/Debug/netstandard2.1/${{ env.DLL_NAME }}"
+        zip -j ${{ env.zip_name }} "manifest.json" "icon.png" "README.md" "CHANGELOG.md" "BetterLadders/bin/Debug/netstandard2.1/${{ env.dll_name }}"
     - name: Attach Archive to Release
-      run: gh release upload ${{ github.event.release.tag_name }} ${{ env.ZIP_NAME }}
+      run: gh release upload ${{ github.event.release.tag_name }} ${{ env.zip_name }}
     - name: Upload to Thunderstore
       uses: GreenTF/upload-thunderstore-package@v4.3
       with:
         namespace: e3s1
-        description: ${{ env.DESCRIPTION }}
+        description: ${{ env.description }}
         token: ${{ secrets.TS_API_KEY }}
-        name: ${{ env.NAME }}
-        version: ${{ env.VERSION_NUMBER }}
+        name: ${{ env.name }}
+        version: ${{ env.version }}
         community: lethal-company
         repo: thunderstore.io
-        deps: ${{ env.DEPENDENCIES }}
-        file: ${{ env.ZIP_NAME }}
+        deps: ${{ env.dependencies }}
+        file: ${{ env.zip_name }}
         categories: |
           bepinex
           mods
