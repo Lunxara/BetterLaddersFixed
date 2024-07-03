@@ -22,6 +22,8 @@ namespace BetterLadders
         //Extension Ladders (not synced)
         public bool holdToPickup { get; internal set; }
         public float holdTime { get; internal set; }
+        //Debug
+        public bool debugMode { get; internal set; }
         //Not in config
         public bool hostMissingMod { get; internal set; }
         internal Config(ConfigFile cfg)
@@ -43,6 +45,8 @@ namespace BetterLadders
             //Extension Ladders (not synced)
             holdToPickup = cfg.Bind("Extension Ladders", "holdToPickup", true, "Whether the interact key needs to be held to pick up an activated extension ladder").Value;
             holdTime = cfg.Bind("Extension Ladders", "holdTime", 0.5f, "How long, in seconds, the interact key must be held if holdToPickup is true").Value;
+            //Debug
+            debugMode = cfg.Bind("Debug", "debugMode", false, "Displays debug messages in the BepInEx console if true").Value;
             //Not in config
             hostMissingMod = false;
         }

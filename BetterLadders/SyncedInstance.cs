@@ -21,10 +21,9 @@ public class SyncedInstance<T>
 
     public static T Default { get; private set; }
     public static T Instance { get; private set; }
+    public static bool SyncedPatchesApplied { get; private set; }
 
     public static bool Synced { get; internal set; }
-    public static bool StartedSyncedPatches { get; internal set; }
-
     protected void InitInstance(T instance)
     {
         Default = instance;
@@ -34,7 +33,6 @@ public class SyncedInstance<T>
         // We use 4 by default as that's the size of an int on 32 and 64 bit systems.
         IntSize = sizeof(int);
 
-        StartedSyncedPatches = false;
     }
 
     internal static void SyncInstance(byte[] data)
@@ -194,10 +192,11 @@ public class SyncedInstance<T>
     public static void PlayerLeave()
     {
         Config.RevertSync();
-        if (StartedSyncedPatches)
+        if (SyncedPatchesApplied)
         {
-            Plugin.Logger.LogWarning("Unpatching transpilers");
-            Plugin.Instance.StartSyncedPatches(false); // Unpatch transpilers and set StartedSyncedPatches to false
+            Plugin.Logger.LogInfo("Unpatching transpilers");
+            Plugin.Instance.UnpatchSyncedTranspilers();
+            SyncedPatchesApplied = false;
         }
     }
 
@@ -228,10 +227,11 @@ public class SyncedInstance<T>
             Plugin.Logger.LogInfo("Config wasn't synced with host (likely doesn't have mod), setting vanilla config defaults");
             Config.Instance.SetVanillaDefaults();
         }
-        if (!StartedSyncedPatches)
+        Plugin.Logger.LogInfo("All config syncing operations finished, starting synced patches");
+        if (!SyncedPatchesApplied)
         {
-            Plugin.Logger.LogInfo("All config syncing operations finished, starting synced patches");
-            Plugin.Instance.StartSyncedPatches(true); // Patch transpilers
+            Plugin.Instance.PatchSyncedTranspilers();
+            SyncedPatchesApplied = true;
         }
     }
 }
