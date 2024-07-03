@@ -1,6 +1,6 @@
 # Changelog
 ## 1.4.3
-- Transpilers are now unpatched correctly ()
+- Transpilers are now unpatched correctly
 - IL code is now only logged if debugMode is true in the config
 ## 1.4.2
 - Fixed broken directory structure in zip file
