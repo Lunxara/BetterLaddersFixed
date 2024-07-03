@@ -1,0 +1,48 @@
+name: Build and Publish
+
+on:
+  release:
+    types: [released, prereleased]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    - name: Build
+      run: dotnet build
+    - name: Get Release Info
+      run: |
+        echo "NAME=$(jq -r '.name' manifest.json)" >> $GITHUB_ENV
+        echo "VERSION_NUMBER=$(jq -r '.version_number' manifest.json)" >> $GITHUB_ENV
+        echo "DESCRIPTION=$(jq -r '.description' manifest.json)" >> $GITHUB_ENV
+        echo "DEPENDENCIES=$(jq -r '.dependencies | join(" ")' manifest.json)" >> $GITHUB_ENV
+        echo "ZIP_NAME=${{ env.NAME }}-${{ env.VERSION_NUMBER }}.zip" >> $GITHUB_ENV
+        echo "DLL_NAME=${{ env.NAME }}.dll" >> $GITHUB_ENV
+    - name: Create Thunderstore Package
+      run: |
+        zip -j ${{ env.ZIP_NAME }} "manifest.json" "icon.png" "README.md" "CHANGELOG.md" "BetterLadders/bin/Debug/netstandard2.1/${{ env.DLL_NAME }}"
+    - name: Attach Archive to Release
+      run: gh release upload ${{ github.event.release.tag_name }} ${{ env.ZIP_NAME }}
+    - name: Upload to Thunderstore
+      uses: GreenTF/upload-thunderstore-package@v4.3
+      with:
+        namespace: e3s1
+        description: ${{ env.DESCRIPTION }}
+        token: ${{ secrets.TS_API_KEY }}
+        name: ${{ env.NAME }}
+        version: ${{ env.VERSION_NUMBER }}
+        community: lethal-company
+        repo: thunderstore.io
+        deps: ${{ env.DEPENDENCIES }}
+        file: ${{ env.ZIP_NAME }}
+        categories: |
+          bepinex
+          mods
+          clientside
+          serverside
+          misc
