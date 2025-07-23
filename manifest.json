@@ -1,6 +1,6 @@
 {
     "name": "BetterLadders",
-    "version_number": "1.2.2",
+    "version_number": "2.0.0",
     "website_url": "https://github.com/e3s1/BetterLadders",
     "description": "Alter ladder speed and allow ladder usage with two-handed items",
     "dependencies": [

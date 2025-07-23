@@ -1,32 +1,56 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+    <!-- BepInEx properties. -->
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>BetterLadders</AssemblyName>
         <Description>Alter ladder speed and allow usage with two-handed items</Description>
-        <Version>1.2.2</Version>
+        <Version>2.0.0</Version>
+    </PropertyGroup>
+
+    <!-- Project properties. -->
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <LangVersion>latest</LangVersion>
+        <LangVersion>preview</LangVersion>
+        <PackageLicenseFile>../LICENSE</PackageLicenseFile>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-      <Optimize>True</Optimize>
+    <!-- Code linting. -->
+    <PropertyGroup>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+        <AnalysisMode>All</AnalysisMode>
+        <AnalysisLevel>preview-recommended</AnalysisLevel>
+    </PropertyGroup>
+
+    <!-- Disable certain warnings. -->
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);CA1051</NoWarn>
+        <NoWarn>$(NoWarn);CA1707</NoWarn>
+    </PropertyGroup>
+
+    <!-- Embedded debug. -->
+    <PropertyGroup>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>embedded</DebugType>
+        <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
+    </PropertyGroup>
+
+    <!-- Enable 'Nullable' types. -->
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="lib\**" />
-      <Compile Remove="Patches\**" />
-      <EmbeddedResource Remove="lib\**" />
-      <EmbeddedResource Remove="Patches\**" />
-      <None Remove="lib\**" />
-      <None Remove="Patches\**" />
-    </ItemGroup>
-
-    <ItemGroup>
+        <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.22.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
         <PackageReference Include="BepInEx.Core" Version="5.*" />
-        <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
         <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" />
+        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="70.0.0-ngd.0" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
@@ -34,14 +58,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="Assembly-CSharp">
-        <HintPath>lib\Assembly-CSharp.dll</HintPath>
-      </Reference>
-      <Reference Include="Unity.Netcode.Runtime">
-        <HintPath>lib\Unity.Netcode.Runtime.dll</HintPath>
-      </Reference>
-      <Reference Include="Unity.TextMeshPro">
-        <HintPath>lib\Unity.TextMeshPro.dll</HintPath>
-      </Reference>
+        <None Include="LICENSE" Pack="true" PackagePath="$(PackageLicenseFile)" />
     </ItemGroup>
+
+    <Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
+        <Exec Command="netcode-patch &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
+    </Target>
 </Project>

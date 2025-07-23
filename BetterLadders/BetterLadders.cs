@@ -14,7 +14,7 @@ namespace BetterLadders
 
         public const string GUID = "e3s1.BetterLadders";
         public const string NAME = "BetterLadders";
-        public const string VERSION = "1.2.2";
+        public const string VERSION = "2.0.0";
 
         private ConfigEntry<float> configClimbSpeedMultiplier;
         private ConfigEntry<float> configClimbSprintSpeedMultiplier;
@@ -34,7 +34,7 @@ namespace BetterLadders
             configHideTwoHanded = Config.Bind("General", "hideTwoHanded", true, "Whether to hide two-handed items while climbing a ladder");
 
             // Plugin startup logic
-            Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} loaded!");
+            Logger.LogInfo($"{GUID} loaded!");
 
             harmony.PatchAll(typeof(BetterLadders));
             harmony.PatchAll(typeof(PlayerControllerBPatch));
