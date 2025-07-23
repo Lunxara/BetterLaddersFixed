@@ -1,127 +1,61 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
-using GameNetcodeStuff;
+using BepInEx.Logging;
+using BetterLadders.Patches;
 using HarmonyLib;
+using System;
+using System.Linq;
+using System.Reflection;
+using UnityEngine;
 
 namespace BetterLadders
 {
-    [BepInPlugin(GUID, NAME, VERSION)]
+    [BepInPlugin(PLUGIN_GUID, NAME, VERSION)]
     public class BetterLadders : BaseUnityPlugin
     {
-        private readonly Harmony harmony = new(GUID);
+        public const string PLUGIN_GUID = "e3s1.BetterLadders", NAME = "BetterLadders", VERSION = "2.0.0";
+        internal static ManualLogSource StaticLogger { get; private set; } = null!;
 
-        public static BetterLadders Instance;
+        internal static Config Settings { get; private set; } = null!;
 
-        public const string GUID = "e3s1.BetterLadders";
-        public const string NAME = "BetterLadders";
-        public const string VERSION = "2.0.0";
+        internal static Harmony Harmony { get; private set; } = null!;
 
-        private ConfigEntry<float> configClimbSpeedMultiplier;
-        private ConfigEntry<float> configClimbSprintSpeedMultiplier;
-        private ConfigEntry<bool> configAllowTwoHanded;
-        private ConfigEntry<bool> configScaleAnimationSpeed;
-        private ConfigEntry<bool> configHideOneHanded;
-        private ConfigEntry<bool> configHideTwoHanded;
-
-        void Awake()
+        private void Awake()
         {
-            Instance = this;
-            configClimbSpeedMultiplier = Config.Bind("General", "climbSpeedMultipler", 1.0f, "Ladder climb speed multiplier");
-            configClimbSprintSpeedMultiplier = Config.Bind("General", "sprintingClimbSpeedMultiplier", 1.5f, "Ladder climb speed multiplier while sprinting, stacks with climbSpeedMultiplier");
-            configAllowTwoHanded = Config.Bind("General", "allowTwoHanded", true, "Whether to allow using ladders while carrying a two-handed object");
-            configScaleAnimationSpeed = Config.Bind("General", "scaleAnimationSpeed", true, "Whether to scale the speed of the climbing animation to the climbing speed");
-            configHideOneHanded = Config.Bind("General", "hideOneHanded", true, "Whether to hide one-handed items while climbing a ladder - false in vanilla");
-            configHideTwoHanded = Config.Bind("General", "hideTwoHanded", true, "Whether to hide two-handed items while climbing a ladder");
+            // Initialize 'Config' and 'Harmony' instances.
+            Settings = new(Config);
+            Harmony = new(PLUGIN_GUID);
+            // ...
 
-            // Plugin startup logic
-            Logger.LogInfo($"{GUID} loaded!");
+            NetcodePatcher(); // Patches your netcode, patches your netcode, patches your netcode...
 
-            harmony.PatchAll(typeof(BetterLadders));
-            harmony.PatchAll(typeof(PlayerControllerBPatch));
-            harmony.PatchAll(typeof(InteractTriggerPatch));
+            // Apply all patches.
+            Harmony.PatchAll(typeof(AllowTwoHandedPatch));
+            Harmony.PatchAll(typeof(ClimbSpeedPatch));
+            Harmony.PatchAll(typeof(HideItemsPatches));
+            // ...
+
+            StaticLogger.LogInfo($"{NAME} v{VERSION} loaded!");
         }
 
-        [HarmonyPatch(typeof(PlayerControllerB))]
-        internal class PlayerControllerBPatch
+        private static void NetcodePatcher()
         {
-            [HarmonyPatch("Update")]
-            [HarmonyPostfix]
-            private static void LadderClimbSpeedPatch(ref bool ___isSprinting, ref float ___climbSpeed, ref bool ___isClimbingLadder, ref PlayerControllerB __instance)
+            Type[] types;
+            try
             {
-                if (___isClimbingLadder)
-                {
-                    float finalClimbSpeed;
-                    float animationMultiplier;
-                    if (___isSprinting)
-                    {
-                        // vanilla climb speed is 4.0f
-                        finalClimbSpeed = 4.0f * BetterLadders.Instance.configClimbSpeedMultiplier.Value * BetterLadders.Instance.configClimbSprintSpeedMultiplier.Value;
-                    }
-                    else
-                    {
-                        finalClimbSpeed = 4.0f * BetterLadders.Instance.configClimbSpeedMultiplier.Value;
-                    }
-                    animationMultiplier = finalClimbSpeed / 4.0f;
-                    ___climbSpeed = finalClimbSpeed;
-                    if (BetterLadders.Instance.configScaleAnimationSpeed.Value && __instance.playerBodyAnimator.GetFloat("animationSpeed") != 0f) // animationSpeed is set to 0f when the player stops moving
-                    {
-                        __instance.playerBodyAnimator.SetFloat("animationSpeed", animationMultiplier);
-                    }
-                }
+                types = Assembly.GetExecutingAssembly().GetTypes();
             }
-            
-            [HarmonyPatch("Interact_performed")]
-            [HarmonyPrefix]
-            private static void LadderTwoHandedAccessPatch(ref InteractTrigger ___hoveringOverTrigger, ref bool ___twoHanded)
+            catch (ReflectionTypeLoadException e)
             {
-                if (BetterLadders.Instance.configAllowTwoHanded.Value && ___hoveringOverTrigger != null && ___hoveringOverTrigger.isLadder && ___twoHanded)
-                {
-                            ___hoveringOverTrigger.twoHandedItemAllowed = true;
-                            ___hoveringOverTrigger.specialCharacterAnimation = false;
-                            ___hoveringOverTrigger.hidePlayerItem = true;
-                }
+                types = [.. e.Types.Where(type => type != null)];
             }
 
-            [HarmonyPatch("SetHoverTipAndCurrentInteractTrigger")]
-            [HarmonyPostfix]
-            private static void LadderHandsFullTipPatch(ref PlayerControllerB __instance, ref InteractTrigger ___hoveringOverTrigger, ref bool ___isHoldingInteract, ref bool ___twoHanded)
+            foreach (Type type in types)
             {
-                if (BetterLadders.Instance.configAllowTwoHanded.Value && ___hoveringOverTrigger != null && ___isHoldingInteract && ___twoHanded && ___hoveringOverTrigger.isLadder)
+                foreach (MethodInfo method in type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
                 {
-                    __instance.cursorTip.text = ___hoveringOverTrigger.hoverTip.Replace("[LMB]", "[E]");
-                }
-            }
-
-            [HarmonyPatch("SwitchToItemSlot")]
-            [HarmonyPostfix]
-            private static void LadderHeldItemVisibilityPatch(ref PlayerControllerB __instance)
-            {
-                LadderItemVisibility.Set(ref __instance.isClimbingLadder);
-                // This doesn't affect anything in vanilla since you can't switch slots while climbing a ladder.
-                // If a mod that allows switching slots via keybinds is installed, this prevents items from appearing when using them.
-            }
-        }
-        [HarmonyPatch(typeof(InteractTrigger))]
-        internal class InteractTriggerPatch
-        {
-            [HarmonyPatch("SetUsingLadderOnLocalClient")]
-            [HarmonyPostfix]
-            private static void LadderHeldItemVisibilityPatch(ref bool ___usingLadder)
-            {
-                LadderItemVisibility.Set(ref ___usingLadder);
-            }
-        }
-
-        internal static class LadderItemVisibility
-        {
-            public static void Set(ref bool ___usingLadder)
-            {
-                PlayerControllerB playerController = GameNetworkManager.Instance.localPlayerController;
-                if (playerController.isHoldingObject)
-                {
-                    if ((BetterLadders.Instance.configAllowTwoHanded.Value && BetterLadders.Instance.configHideTwoHanded.Value && playerController.twoHanded) || (BetterLadders.Instance.configHideOneHanded.Value && !playerController.twoHanded))
+                    if (method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false).Length > 0)
                     {
-                        playerController.currentlyHeldObjectServer.EnableItemMeshes(enable: !___usingLadder);
+                        _ = method.Invoke(null, null);
                     }
                 }
             }
