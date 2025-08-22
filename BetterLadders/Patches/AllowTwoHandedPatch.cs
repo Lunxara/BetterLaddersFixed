@@ -1,19 +1,40 @@
 using HarmonyLib;
+using UnityEngine;
+
+using static BetterLadders.Config;
 
 namespace BetterLadders.Patches
 {
+    [HarmonyPatch]
     internal sealed class AllowTwoHandedPatch
     {
-        [HarmonyPatch("Interact_performed")]
-        [HarmonyPrefix]
-        private static void LadderTwoHandedAccessPatch(ref InteractTrigger ___hoveringOverTrigger, ref bool ___twoHanded)
+        [HarmonyPatch(typeof(InteractTrigger), nameof(InteractTrigger.Start))]
+        [HarmonyPostfix]
+        private static void LadderStart_Post(InteractTrigger __instance)
         {
-            if (BetterLadders.Settings.AllowTwoHanded.Value && ___hoveringOverTrigger != null && ___hoveringOverTrigger.isLadder && ___twoHanded)
+            if (__instance.isLadder && !__instance.twoHandedItemAllowed && __instance.specialCharacterAnimation)
             {
-                ___hoveringOverTrigger.twoHandedItemAllowed = true;
-                ___hoveringOverTrigger.specialCharacterAnimation = false;
-                ___hoveringOverTrigger.hidePlayerItem = true;
+                ModifyLadder(__instance, LocalData.allowTwoHanded);
             }
+        }
+
+        internal static void RefreshAllLadders(bool allowTwoHanded)
+        {
+            InteractTrigger[] allTriggers = Object.FindObjectsByType<InteractTrigger>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+
+            for (int i = 0; i < allTriggers.Length; i++)
+            {
+                if (allTriggers[i].isLadder)
+                {
+                    ModifyLadder(allTriggers[i], allowTwoHanded);
+                }
+            }
+        }
+
+        private static void ModifyLadder(InteractTrigger ladderTrigger, bool allowTwoHanded)
+        {
+            ladderTrigger.twoHandedItemAllowed = allowTwoHanded;
+            ladderTrigger.specialCharacterAnimation = !allowTwoHanded;
         }
     }
 }

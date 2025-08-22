@@ -9,32 +9,50 @@ using UnityEngine;
 
 namespace BetterLadders
 {
-    [BepInPlugin(PLUGIN_GUID, NAME, VERSION)]
+    /// <summary>
+    ///     Configurable climbing speed, extension ladder time, and climbing with two-handed items.
+    /// </summary>
+    [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     public class BetterLadders : BaseUnityPlugin
     {
-        public const string PLUGIN_GUID = "e3s1.BetterLadders", NAME = "BetterLadders", VERSION = "2.0.0";
+        /// <summary>
+        ///     General plugin properties.
+        /// </summary>
+        public const string PLUGIN_GUID = "e3s1.BetterLadders", PLUGIN_NAME = "BetterLadders", PLUGIN_VERSION = "2.0.0";
+
         internal static ManualLogSource StaticLogger { get; private set; } = null!;
-
         internal static Config Settings { get; private set; } = null!;
-
         internal static Harmony Harmony { get; private set; } = null!;
 
         private void Awake()
         {
-            // Initialize 'Config' and 'Harmony' instances.
-            Settings = new(Config);
-            Harmony = new(PLUGIN_GUID);
-            // ...
+            StaticLogger = Logger;
 
-            NetcodePatcher(); // Patches your netcode, patches your netcode, patches your netcode...
+            try
+            {
+                // Initialize 'Config' and 'Harmony' instances.
+                Settings = new(Config);
+                Harmony = new(PLUGIN_GUID);
+                // ...
 
-            // Apply all patches.
-            Harmony.PatchAll(typeof(AllowTwoHandedPatch));
-            Harmony.PatchAll(typeof(ClimbSpeedPatch));
-            Harmony.PatchAll(typeof(HideItemsPatches));
-            // ...
+                NetcodePatcher(); // Patches your netcode, patches your netcode, patches your netcode...
+                Harmony.PatchAll(typeof(NetworkingInitPatches));
 
-            StaticLogger.LogInfo($"{NAME} v{VERSION} loaded!");
+                // Apply all other patches.
+                Harmony.PatchAll(typeof(AllowTwoHandedPatch));
+                Harmony.PatchAll(typeof(ClimbSpeedPatch));
+                // Harmony.PatchAll(typeof(ExtLadderHoldPatch));
+                Harmony.PatchAll(typeof(ExtLadderKillTriggerPatch));
+                Harmony.PatchAll(typeof(ExtLadderTimerPatch));
+                Harmony.PatchAll(typeof(HideItemsPatches));
+                // ...
+
+                StaticLogger.LogInfo($"{PLUGIN_NAME} v{PLUGIN_VERSION} loaded!");
+            }
+            catch (Exception e)
+            {
+                StaticLogger.LogError($"Error while initializing '{PLUGIN_NAME}': {e}");
+            }
         }
 
         private static void NetcodePatcher()
