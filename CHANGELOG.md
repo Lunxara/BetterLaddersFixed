@@ -6,7 +6,7 @@
   - Opted for using a `NetworkVariable` and `RPCs` in a spawned `NetworkHandler` to sync stuff, instead of `CustomMessagingManager` messages.
   - Config changes done in-game in the middle of a round should sync properly without having to restart.
 - Readded Extension Ladder timer and kill trigger configuration, with different implementations as well.
-  - Extension ladder hold to pickup is still missing for the moment, but it's the only feature missing from the latest BetterLadders versions.
+  - Extension ladder hold to pickup, as well as ladder enter/exit animation speed configuration, are still missing for the moment.
 - Ladder climb speed and sprinting patches now use `InputAction` events to apply climb speed multipliers, instead of patching the player's `Update()` loop.
   - Player animation speed scaling now syncs across clients, too.
 - Fixed `NullReferenceException` when attempting to hide an item held in a reserved slot while climbing.
