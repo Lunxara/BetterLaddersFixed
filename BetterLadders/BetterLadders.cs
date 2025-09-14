@@ -18,7 +18,7 @@ namespace BetterLadders
         /// <summary>
         ///     General plugin properties.
         /// </summary>
-        public const string PLUGIN_GUID = "e3s1.BetterLadders", PLUGIN_NAME = "BetterLadders", PLUGIN_VERSION = "2.0.0";
+        public const string PLUGIN_GUID = "e3s1.BetterLadders", PLUGIN_NAME = "BetterLadders", PLUGIN_VERSION = "2.0.1";
 
         internal static ManualLogSource StaticLogger { get; private set; } = null!;
         internal static Config Settings { get; private set; } = null!;
@@ -40,6 +40,7 @@ namespace BetterLadders
 
                 // Apply all other patches.
                 Harmony.PatchAll(typeof(AllowTwoHandedPatch));
+                Harmony.PatchAll(typeof(AnimationSpeedPatch));
                 Harmony.PatchAll(typeof(ClimbSpeedPatch));
                 // Harmony.PatchAll(typeof(ExtLadderHoldPatch));
                 Harmony.PatchAll(typeof(ExtLadderKillTriggerPatch));

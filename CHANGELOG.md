@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [2.0.1]
+
+- Fixed animation speed scaling not actually working.
+  - Should now be properly synced across clients, too!
+
 ## [2.0.0]
 
 - Readded networking to sync the host's config with clients, done differently than how BetterLadders `v1.2.3` originally implemented it.

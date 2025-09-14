@@ -85,18 +85,25 @@ namespace BetterLadders.Networking
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SetAnimationSpeedServerRpc(NetworkBehaviourReference playerReference, float animationSpeed)
+        public void SetAnimationSpeedServerRpc(NetworkBehaviourReference playerReference, bool stop)
         {
-            SetAnimationSpeedClientRpc(playerReference, animationSpeed);
+            SetAnimationSpeedClientRpc(playerReference, stop);
         }
 
         [ClientRpc]
-        public void SetAnimationSpeedClientRpc(NetworkBehaviourReference playerReference, float animationSpeed)
+        public void SetAnimationSpeedClientRpc(NetworkBehaviourReference playerReference, bool stop)
         {
-            if (playerReference.TryGet(out PlayerControllerB player) && player.playerBodyAnimator.GetFloat(ClimbSpeedPatch.animationSpeedID)
-                != animationSpeed && player.actualClientId != GameNetworkManager.Instance.localPlayerController.actualClientId)
+            if (playerReference.TryGet(out PlayerControllerB player)
+                && player.actualClientId != GameNetworkManager.Instance.localPlayerController.actualClientId)
             {
-                player.playerBodyAnimator.SetFloat(ClimbSpeedPatch.animationSpeedID, animationSpeed);
+                player.StopCoroutine(AnimationSpeedPatch.ScalePlayerAnimationSpeed(player));
+
+                if (stop)
+                {
+                    return;
+                }
+
+                _ = player.StartCoroutine(AnimationSpeedPatch.ScalePlayerAnimationSpeed(player));
             }
         }
     }
