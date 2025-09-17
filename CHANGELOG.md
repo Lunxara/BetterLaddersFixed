@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [2.0.2]
+
+- Made `allowTwoHanded` apply regardless of `InteractTrigger` configuration.
+- Removed leftover log from testing stuff.
+
 ## [2.0.1]
 
 - Fixed animation speed scaling not actually working.

@@ -12,7 +12,7 @@ namespace BetterLadders.Patches
         [HarmonyPostfix]
         private static void LadderStart_Post(InteractTrigger __instance)
         {
-            if (__instance.isLadder && !__instance.twoHandedItemAllowed && __instance.specialCharacterAnimation)
+            if (__instance.isLadder)
             {
                 ModifyLadder(__instance, LocalData.allowTwoHanded);
             }
