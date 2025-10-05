@@ -68,33 +68,19 @@ namespace BetterLadders.Networking
             };
         }
 
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.NotMe, RequireOwnership = false)]
         public void HideItemServerRpc(NetworkBehaviourReference itemReference, bool hide)
         {
-            HideItemClientRpc(itemReference, hide);
-        }
-
-        [ClientRpc]
-        public void HideItemClientRpc(NetworkBehaviourReference itemReference, bool hide)
-        {
-            if (itemReference.TryGet(out GrabbableObject item) && item.playerHeldBy != null
-                && item.playerHeldBy.actualClientId != GameNetworkManager.Instance.localPlayerController.actualClientId)
+            if (itemReference.TryGet(out GrabbableObject item) && item.playerHeldBy != null)
             {
                 item.EnableItemMeshes(hide);
             }
         }
 
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.NotMe, RequireOwnership = false)]
         public void SetAnimationSpeedServerRpc(NetworkBehaviourReference playerReference, bool stop)
         {
-            SetAnimationSpeedClientRpc(playerReference, stop);
-        }
-
-        [ClientRpc]
-        public void SetAnimationSpeedClientRpc(NetworkBehaviourReference playerReference, bool stop)
-        {
-            if (playerReference.TryGet(out PlayerControllerB player)
-                && player.actualClientId != GameNetworkManager.Instance.localPlayerController.actualClientId)
+            if (playerReference.TryGet(out PlayerControllerB player))
             {
                 player.StopCoroutine(AnimationSpeedPatch.ScalePlayerAnimationSpeed(player));
 

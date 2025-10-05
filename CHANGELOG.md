@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [2.1.0]
+
+- Updated networking for `v73` support!
+  - **NOTE:** Downgrading is required if intending to play on `v72` and below.
+
 ## [2.0.2]
 
 - Made `allowTwoHanded` apply regardless of `InteractTrigger` configuration.
